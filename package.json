@@ -1,0 +1,38 @@
+{
+  "name": "hapi-pres",
+  "description": "Autoload pre-requirements for HapiJS.",
+  "version": "1.0.2",
+  "author": "Angel Ramirez <angel@cuemby.com>",
+  "bugs": {
+    "url": "https://github.com/ar4mirez/hapi-pres/issues"
+  },
+  "dependencies": {
+    "hoek": "^4.0.0",
+    "joi": "^8.0.5",
+    "require-all": "^2.0.0"
+  },
+  "devDependencies": {
+    "code": "^2.2.0",
+    "hapi": "^13.3.0",
+    "lab": "^10.3.1"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "homepage": "https://github.com/ar4mirez/hapi-pres#readme",
+  "keywords": [
+    "pres",
+    "hapi",
+    "plugin"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ar4mirez/hapi-pres.git"
+  },
+  "scripts": {
+    "test": "lab -c -L",
+    "test-cover": "lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html"
+  }
+}
