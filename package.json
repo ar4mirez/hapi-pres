@@ -1,7 +1,7 @@
 {
   "name": "hapi-pres",
   "description": "Autoload pre-requirements for HapiJS.",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "author": "Angel Ramirez <angel@cuemby.com>",
   "bugs": {
     "url": "https://github.com/ar4mirez/hapi-pres/issues"
