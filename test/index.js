@@ -1,12 +1,11 @@
 'use strict';
 
-const Lab = require('lab');
-const Code = require('code');
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
-const expect = Code.expect;
-const Hapi = require('hapi');
+const Lab = require('@hapi/lab');
+const Code = require('@hapi/code');
+const Hapi = require('@hapi/hapi');
+
+const { describe, it } = exports.lab = Lab.script();
+const { expect } = Code;
 
 const internals = {
     info: require('../package')
@@ -14,72 +13,66 @@ const internals = {
 
 describe(internals.info.name + ' plugin registration.', () => {
 
-    it('registers successfully', (done) => {
+    it('registers successfully', async () => {
 
         const server = new Hapi.Server();
-        server.register({
-            register: require('../'),
+        await server.register({
+            plugin: require('../'),
             options: { dirname: '/test/pre' }
-        }, (err) => {
-
-            expect(err).to.not.exist();
-            done();
         });
     });
 
-    it('returns an error on invalid dirname option', (done) => {
+    it('returns an error on invalid dirname option', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
+        let err;
 
-        return server.register({
-            register: require('../'),
-            options: { dirname: 'test/invalid' }
-        }, (err) => {
+        try {
+            await server.register({
+                plugin: require('../'),
+                options: { dirname: 'test/invalid' }
+            });
+        }
+        catch (e) {
+            err = e;
+        }
 
-            expect(err).to.exist();
-            expect(err.message).to.include('ENOENT');
-
-            return done();
-        });
+        expect(err).to.exist();
+        expect(err.message).to.include('ENOENT');
     });
 
-    it('returns error if invalid options.', (done) => {
+    it('returns error if invalid options', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
+        let err;
 
-        return server.register({
-            register: require('../'),
-            options: { badkey: 'test/invalid' }
-        }, (err) => {
+        try {
+            await server.register({
+                plugin: require('../'),
+                options: { badkey: 'test/invalid' }
+            });
+        }
+        catch (e) {
+            err = e;
+        }
 
-            expect(err).to.exist();
-            expect(err).to.be.an.instanceof(Error);
-
-            return done();
-        });
+        expect(err).to.exist();
+        expect(err).to.be.an.instanceof(Error);
     });
 
-    it('pre requirements are loaded.', (done) => {
+    it('pre requirements are loaded', async () => {
 
         const server = new Hapi.Server();
-        server.connection();
-
-        return server.register({
-            register: require('../'),
+        await server.register({
+            plugin: require('../'),
             options: { dirname: '/test/pre' }
-        }, (err) => {
-
-            expect(err).to.not.exists();
-            expect(server.pre).to.exists();
-            expect(server.pre).to.be.an.object();
-            expect(server.pre.pre1.preA).to.exists();
-            expect(server.pre.pre1.preA).to.be.an.object();
-            expect(server.pre.pre2.preB).to.exists();
-            expect(server.pre.pre2.preB).to.be.an.object();
-
-            return done();
         });
+
+        expect(server.pre).to.exist();
+        expect(server.pre).to.be.an.object();
+        expect(server.pre.pre1.preA).to.exist();
+        expect(server.pre.pre1.preA).to.be.an.object();
+        expect(server.pre.pre2.preB).to.exist();
+        expect(server.pre.pre2.preB).to.be.an.object();
     });
 });
