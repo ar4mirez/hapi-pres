@@ -1,7 +1,7 @@
 {
   "name": "@ar4mirez/hapi-pres",
   "description": "Autoload pre-requirements for HapiJS.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Angel Ramirez <angel@cuemby.com>",
   "main": "lib/index.js",
   "engines": {
