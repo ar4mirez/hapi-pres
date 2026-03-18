@@ -1,5 +1,5 @@
 {
-  "name": "hapi-pres",
+  "name": "@ar4mirez/hapi-pres",
   "description": "Autoload pre-requirements for HapiJS.",
   "version": "2.0.0",
   "author": "Angel Ramirez <angel@cuemby.com>",
