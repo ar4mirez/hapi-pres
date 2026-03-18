@@ -1,76 +1,84 @@
 # hapi-pres
-[![Npm Version][npm-badge]][npm-url]
-[![Build Status][travis-badge]][travis-url]
-[![Dependencies][david-badge]][david-url]
-[![Dev dependencies][david-dev-badge]][david-url]
 
-[![NPM](https://nodei.co/npm/hapi-pres.png)](https://nodei.co/npm/hapi-pres/)
+[![npm version](https://img.shields.io/npm/v/@ar4mirez/hapi-pres.svg)](https://www.npmjs.com/package/@ar4mirez/hapi-pres)
+[![CI](https://github.com/ar4mirez/hapi-pres/actions/workflows/ci.yml/badge.svg)](https://github.com/ar4mirez/hapi-pres/actions)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
-[npm-badge]: https://badge.fury.io/js/hapi-pres.svg
-[npm-url]: https://badge.fury.io/js/hapi-pres
-[travis-badge]: https://travis-ci.org/ar4mirez/hapi-pres.svg?branch=master
-[travis-url]: https://travis-ci.org/ar4mirez/hapi-pres
-[david-badge]: https://david-dm.org/ar4mirez/hapi-pres.svg
-[david-dev-badge]: https://david-dm.org/ar4mirez/hapi-pres/dev-status.svg
-[david-url]: https://david-dm.org/ar4mirez/hapi-pres
-[david-dev-url]: https://david-dm.org/ar4mirez/hapi-pres#info=devDependencies
+Autoload pre-requirements for HapiJS routes from a directory.
 
-Plugin to autoload pre-requirements.
+## Requirements
 
-### How to use:
-- Install `hapi-pres` npm package in your project our plugin.
-`npm i hapi-pres`
-- Register plugin in your hapi server:
+- Node.js >= 18
+- `@hapi/hapi` ^21
 
-### Registering
+## Installation
 
-```javascript
-const server = new Hapi.Server();
+```bash
+npm install @ar4mirez/hapi-pres
+```
 
-server.connection();
+## Usage
 
-server.register({
-    register: require('hapi-pres'),
+```js
+const Hapi = require('@hapi/hapi');
+
+const init = async () => {
+  const server = new Hapi.Server({ host: 'localhost', port: 3000 });
+
+  await server.register({
+    plugin: require('@ar4mirez/hapi-pres'),
     options: {
-        dirname: 'path/to/pres' // required
+      dirname: '/pre'
     }
-}, (err) => {
-  // continue application
+  });
+
+  // Pre-requirements are now available via server.pre.*
+  // Example: server.pre.myPreCheck(request, h)
+
+  await server.start();
+  console.log(`Server running at: ${server.info.uri}`);
+};
+
+init();
+```
+
+The plugin scans the configured directory for pre-requirement files and decorates the server with them under a configurable prefix. Each exported function in the scanned files becomes accessible via `server.<prefix>.<filename>`.
+
+**Example pre-requirement file** (`lib/pre/auth.js`):
+
+```js
+module.exports = async (request, h) => {
+  // perform pre-check, e.g. token validation
+  return { userId: 42 };
+};
+```
+
+**Using it in a route:**
+
+```js
+server.route({
+  method: 'GET',
+  path: '/protected',
+  options: {
+    pre: [{ method: server.pre.auth, assign: 'auth' }],
+    handler: async (request, h) => {
+      return { user: request.pre.auth.userId };
+    }
+  }
 });
 ```
 
-manifest style:
-```javascript
-registrations: [
-    ...
-    {
-        plugin: {
-            register: 'hapi-pres',
-            options: {
-                dirname: 'path/to/pres'
-            }
-        }
-    }
-];
-```
+## API / Options
 
-Your pre-requirements are available in your `server` object.
-```javascript
+| Option       | Type    | Default                | Description                          |
+|-------------|---------|------------------------|--------------------------------------|
+| `cwd`        | string  | `process.cwd()`        | Base directory for scanning          |
+| `dirname`    | string  | `'/pre'`               | Subdirectory to scan for pre files   |
+| `filter`     | RegExp  | `/^(.+)\.js$/`         | File filter regex                    |
+| `excludeDirs`| RegExp  | `/^\.(git\|svn)$/`     | Directories to exclude from scanning |
+| `recursive`  | boolean | `true`                 | Scan subdirectories recursively      |
+| `prefix`     | string  | `'pre'`                | Server decoration key                |
 
-server.pre.preFilename.preObjectKey
-```
+## License
 
-#### Pre-requirement Signature
-```javascript
-'use strict';
-
-exports.preA = {
-    assign: 'preA',
-    method: (request, reply) => {
-
-        return reply({
-            message: 'Hello World.'
-        });
-    };
-};
-```
+ISC © [Angel Ramirez](https://github.com/ar4mirez)
